@@ -7,6 +7,7 @@ import { db } from '../db/index.ts'
 import { schema } from '../db/schema/index.ts'
 import { sql } from 'drizzle-orm'
 import { randomUUID } from 'node:crypto'
+import { dispathOrderCreated } from '../broker/messages/order-created.ts'
  
     const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -27,20 +28,26 @@ import { randomUUID } from 'node:crypto'
         },
         async ( request , reply )=>{
             const { amount } = request.body
-                await  channels.orders.sendToQueue("orders", Buffer.from(JSON.stringify({amount})))
 
-                try{
- await db.insert(schema.orders).values({
+                 const orderId = randomUUID();
+                const customerId = "3078a7d5-cf25-4d4c-9157-295c50ce41f2"
+                
+                await dispathOrderCreated({
+                      orderId: orderId,
+                      amount: Number(amount),
+                      custumer: {
+                      id: customerId
+                     }
+                 })
+                
+         await db.insert(schema.orders).values({
                         amount: Number(amount),
-                        customerId: "09445631-a84e-4f96-8bf0-67a054130dec",
-                      
-                        id: randomUUID(),
+                        customerId: customerId,
+                        id: orderId,
                         status:'pending',
                         createdAt: new Date()
                     });
-                }catch(e){
-                    console.log(e)
-                }   
+            
                 
                 
             console.log('Creating order with amount ', amount);
@@ -53,21 +60,22 @@ import { randomUUID } from 'node:crypto'
         {
             schema : {
                 body: z.object({
-                      name:  z.string(),
+                         name:  z.string(),
                          email: z.string(),
                          address: z.string(),
                          state: z.string(),
                          zipCode: z.string(),
                          country: z.string(),
-                         dateOfBirth: z.string(),
+                  
                 })
             }
         },
         async ( request , reply )=>{
            
-             
+                const id = randomUUID() 
+
                     await db.insert(schema.custumers).values({
-                        id: randomUUID(),
+                        id: id,
                          name:  request.body.name,
                          email: request.body.email,
                          address: request.body.address,
@@ -77,7 +85,7 @@ import { randomUUID } from 'node:crypto'
                          dateOfBirth: new Date() 
                     });
                   
-        return reply.status(201).send();
+        return reply.status(201).send({ id:id });
     })
 
 
@@ -85,3 +93,5 @@ const port = 3333
 app.listen( { host: '0.0.0.0', port:port }).then(()=>{
     console.log("[Orders] HTTP server running!")
 })
+
+ 
