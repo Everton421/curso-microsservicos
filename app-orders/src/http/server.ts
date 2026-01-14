@@ -1,5 +1,5 @@
 import {  fastify} from 'fastify'
- 
+ import '@opentelemetry/auto-instrumentations-node'
 import { z } from 'zod'
 import {serializerCompiler, validatorCompiler, type ZodTypeProvider  } from 'fastify-type-provider-zod'
 import { channels } from '../broker/channels/index.ts'
@@ -30,7 +30,7 @@ import { dispathOrderCreated } from '../broker/messages/order-created.ts'
             const { amount } = request.body
 
                  const orderId = randomUUID();
-                const customerId = "3078a7d5-cf25-4d4c-9157-295c50ce41f2"
+                const customerId = "bd62e6ce-1270-462b-b3d3-15bfdcc4affd"
                 
                 await dispathOrderCreated({
                       orderId: orderId,

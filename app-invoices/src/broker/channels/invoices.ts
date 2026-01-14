@@ -2,9 +2,9 @@
  
 
 
-  export  const invoices = await broker.createChannel();
+  export  const orders = await broker.createChannel();
 
      
- await invoices.assertQueue('invoices')
+ await orders.assertQueue('orders')
 
   

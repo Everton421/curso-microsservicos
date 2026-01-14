@@ -1,5 +1,8 @@
-import {  fastify} from 'fastify'
  
+import '../broker/subscriber.ts'
+import {  fastify} from 'fastify'
+
+
 import {serializerCompiler, validatorCompiler, type ZodTypeProvider  } from 'fastify-type-provider-zod'
  
     const app = fastify().withTypeProvider<ZodTypeProvider>()
@@ -13,7 +16,7 @@ import {serializerCompiler, validatorCompiler, type ZodTypeProvider  } from 'fas
 
   
 
-const port = 3333
+const port = 3334
 app.listen( { host: '0.0.0.0', port:port }).then(()=>{
     console.log("[Invoices] HTTP server running!")
 })
