@@ -1,5 +1,5 @@
 import {  fastify} from 'fastify'
- import '@opentelemetry/auto-instrumentations-node'
+ import '@opentelemetry/auto-instrumentations-node/register'
 import { z } from 'zod'
 import {serializerCompiler, validatorCompiler, type ZodTypeProvider  } from 'fastify-type-provider-zod'
 import { channels } from '../broker/channels/index.ts'
@@ -7,8 +7,10 @@ import { db } from '../db/index.ts'
 import { schema } from '../db/schema/index.ts'
 import { sql } from 'drizzle-orm'
 import { randomUUID } from 'node:crypto'
+import { setTimeout } from 'node:timers/promises'
 import { dispathOrderCreated } from '../broker/messages/order-created.ts'
- 
+ import  { trace } from '@opentelemetry/api'
+import { tracer } from '../tracer/tracer.ts'
     const app = fastify().withTypeProvider<ZodTypeProvider>()
 
     app.setSerializerCompiler(serializerCompiler)
@@ -32,6 +34,24 @@ import { dispathOrderCreated } from '../broker/messages/order-created.ts'
                  const orderId = randomUUID();
                 const customerId = "bd62e6ce-1270-462b-b3d3-15bfdcc4affd"
                 
+                        await db.insert(schema.orders).values({
+                        amount: Number(amount),
+                        customerId: customerId,
+                        id: orderId,
+                        status:'pending',
+                        createdAt: new Date()
+                    });
+
+
+            
+                    
+                    const span = tracer.startSpan("Aqui deu ruim")
+                        span.setAttribute('teste', 'hello world')
+                        await setTimeout(2000)
+                    span.end()
+
+                    trace.getActiveSpan()?.setAttribute('order_id', orderId)
+
                 await dispathOrderCreated({
                       orderId: orderId,
                       amount: Number(amount),
@@ -40,13 +60,7 @@ import { dispathOrderCreated } from '../broker/messages/order-created.ts'
                      }
                  })
                 
-         await db.insert(schema.orders).values({
-                        amount: Number(amount),
-                        customerId: customerId,
-                        id: orderId,
-                        status:'pending',
-                        createdAt: new Date()
-                    });
+  
             
                 
                 
