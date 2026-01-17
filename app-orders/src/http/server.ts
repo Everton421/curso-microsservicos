@@ -41,10 +41,7 @@ import { tracer } from '../tracer/tracer.ts'
                         status:'pending',
                         createdAt: new Date()
                     });
-
-
-            
-                    
+  
                     const span = tracer.startSpan("Aqui deu ruim")
                         span.setAttribute('teste', 'hello world')
                         await setTimeout(2000)
@@ -59,11 +56,7 @@ import { tracer } from '../tracer/tracer.ts'
                       id: customerId
                      }
                  })
-                
-  
-            
-                
-                
+                  
             console.log('Creating order with amount ', amount);
 
         return reply.status(201).send();
