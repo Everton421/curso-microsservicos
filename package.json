@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@pulumi/docker-build": "^0.0.15"
+  }
+}
